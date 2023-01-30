@@ -97,7 +97,7 @@ func collector(d *dataDir, done chan<- bool) {
 			log.Printf("[.] %s : %s", res.Job.Fname, res.Result)
 			d.lock.Unlock()
 		} else {
-			log.Printf("Job {%d} failed: {%s}\n", res.Job.Id, res.Result)
+			log.Printf("{%d} {%s} failed: {%s}\n", res.Job.Id, res.Job.Fname, res.Result)
 		}
 	}
 	done <- true

@@ -51,12 +51,15 @@ func (pg *PostgresWorker) Work(id int, jobs <-chan Job, results chan<- Result) {
 				errcount++
 				res.Status = false
 				res.Result = err.Error()
+				break
 			} else {
 				count++
 				res.Status = true
 			}
 		}
-		res.Result = fmt.Sprintf("Inserted %d rows, Errors: %d", count, errcount)
+		if res.Status {
+			res.Result = fmt.Sprintf("Inserted %d rows, Errors: %d", count, errcount)
+		}
 
 		results <- res
 	}
