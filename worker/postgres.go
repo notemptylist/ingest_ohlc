@@ -35,8 +35,8 @@ func (pg *PostgresWorker) Work(id int, jobs <-chan Job, results chan<- Result) {
 			results <- res
 			continue
 		}
-		count := 0
-		errcount := 0
+		var count int
+		var errcount int
 		for _, candle := range fileParser.Contents.Candles {
 			insertStmt := `insert into ohlc (symbol, time, open, high, low, close, volume) values ($1, to_timestamp($2), $3, $4, $5, $6, $7)`
 			_, err := pg.conn.Exec(insertStmt,
