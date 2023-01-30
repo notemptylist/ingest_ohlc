@@ -12,7 +12,7 @@ type Job struct {
 }
 
 type Result struct {
-	Job    Job
+	Job    *Job
 	Status bool
 	Result string
 }
@@ -25,7 +25,8 @@ type DefaultWorker struct {
 }
 
 func NewDefaultWorker() (*DefaultWorker, error) {
-	return &DefaultWorker{}, nil
+	d := DefaultWorker{}
+	return &d, nil
 }
 
 func (w *DefaultWorker) Work(id int, jobs <-chan Job, results chan<- Result) {
@@ -34,7 +35,7 @@ func (w *DefaultWorker) Work(id int, jobs <-chan Job, results chan<- Result) {
 		fileParser.Parse(work.Fname)
 		res := Result{
 			Status: true,
-			Job:    work,
+			Job:    &work,
 			Result: fmt.Sprintf("%d completed %v", id, work),
 		}
 		results <- res

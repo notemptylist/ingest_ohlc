@@ -16,10 +16,10 @@ func NewPostgresWorker(dbConn *sql.DB) (*PostgresWorker, error) {
 	if err := dbConn.Ping(); err != nil {
 		return nil, err
 	}
-	pg := &PostgresWorker{
+	pg := PostgresWorker{
 		conn: dbConn,
 	}
-	return pg, nil
+	return &pg, nil
 }
 
 func (pg *PostgresWorker) Work(id int, jobs <-chan Job, results chan<- Result) {
@@ -27,7 +27,7 @@ func (pg *PostgresWorker) Work(id int, jobs <-chan Job, results chan<- Result) {
 
 	for work := range jobs {
 		res := Result{
-			Job: work,
+			Job: &work,
 		}
 		if err := fileParser.Parse(work.Fname); err != nil {
 			res.Status = false
@@ -52,13 +52,12 @@ func (pg *PostgresWorker) Work(id int, jobs <-chan Job, results chan<- Result) {
 				res.Status = false
 				res.Result = err.Error()
 				break
-			} else {
-				count++
-				res.Status = true
 			}
+			count++
+			res.Status = true
 		}
 		if res.Status {
-			res.Result = fmt.Sprintf("Inserted %d rows, Errors: %d", count, errcount)
+			res.Result = fmt.Sprintf("Inserted %d rows", count)
 		}
 
 		results <- res
