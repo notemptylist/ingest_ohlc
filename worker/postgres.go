@@ -27,7 +27,7 @@ func (pg *PostgresWorker) Work(id int, jobs <-chan Job, results chan<- Result) {
 
 	for work := range jobs {
 		res := Result{
-			Job: &work,
+			Job: work,
 		}
 		if err := fileParser.Parse(work.Fname); err != nil {
 			res.Status = false
