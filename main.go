@@ -24,7 +24,7 @@ func newDataDir(path string) *dataDir {
 	return &dataDir{
 		path:      path,
 		files:     make([]string, 0),
-		processed: make(map[string]string, 0),
+		processed: make(map[string]string),
 	}
 }
 
@@ -62,7 +62,6 @@ func allocateWork(d *dataDir) {
 		}
 		job := worker.Job{Id: id, Fname: d.path + fname}
 		jobs <- job
-		id++
 	}
 	close(jobs)
 }
@@ -105,16 +104,17 @@ func collector(d *dataDir, done chan<- bool) {
 
 func main() {
 
+	numProcs := runtime.NumCPU()
 	dataDirPath := flag.String("dataDir", "", "Path to the data directory")
 	dbUrl := flag.String("dbUrl", "", "Database connection URI")
-	numProcs := flag.Int("workers", runtime.NumCPU(), "Number of workers to spawn")
+	numProcs = *flag.Int("workers", numProcs, "Number of workers to spawn")
 
 	flag.Parse()
 	if len(*dbUrl) == 0 || len(*dataDirPath) == 0 {
 		flag.Usage()
 		return
 	}
-	log.Printf("Running with %d workers\n", *numProcs)
+	log.Printf("Running with %d workers\n", numProcs)
 	log.Printf("Using %s as dbUrl\n", *dbUrl)
 
 	D := newDataDir(*dataDirPath)
@@ -135,7 +135,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	spawnWorkers(*numProcs, child)
+	spawnWorkers(numProcs, child)
 	<-done
 	log.Printf("[*] Processed %d/%d files.", len(D.processed), D.filecount)
 }
