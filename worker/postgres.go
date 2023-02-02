@@ -25,10 +25,9 @@ func NewPostgresWorker(dbConn *sql.DB) (*PostgresWorker, error) {
 func (pg *PostgresWorker) Work(id int, jobs <-chan Job, results chan<- Result) {
 	fileParser := parser.NewDefaultParser()
 
+	res := Result{}
 	for work := range jobs {
-		res := Result{
-			Job: work,
-		}
+		res.Job = work
 		if err := fileParser.Parse(work.Fname); err != nil {
 			res.Status = false
 			res.Result = err.Error()
