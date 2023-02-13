@@ -15,7 +15,7 @@ import (
 type dataDir struct {
 	path      string
 	filecount int
-	lock      sync.RWMutex
+	sync.RWMutex
 	processed map[string]string
 	files     []string
 }
@@ -54,9 +54,9 @@ var results = make(chan worker.Result, 3)
 // Once all the jobs have been assigned the channel is closed.
 func allocateWork(d *dataDir) {
 	for id, fname := range d.files {
-		d.lock.Lock()
+		d.Lock()
 		_, ok := d.processed[fname]
-		d.lock.Unlock()
+		d.Unlock()
 		if ok {
 			continue
 		}
@@ -88,13 +88,13 @@ func spawnWorkers(numWorkers int, child worker.Worker) {
 func collector(d *dataDir, done chan<- bool) {
 	for res := range results {
 		if res.Status {
-			d.lock.Lock()
+			d.Lock()
 			if _, ok := d.processed[res.Job.Fname]; ok {
 				log.Fatalf("Received duplicate result: %s", res.Job.Fname)
 			}
 			d.processed[res.Job.Fname] = res.Result
 			log.Printf("[.] %s : %s", res.Job.Fname, res.Result)
-			d.lock.Unlock()
+			d.Unlock()
 		} else {
 			log.Printf("{%d} {%s} failed: {%s}\n", res.Job.Id, res.Job.Fname, res.Result)
 		}
