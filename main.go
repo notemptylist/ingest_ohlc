@@ -72,9 +72,9 @@ func allocateWork(d *dataDir) {
 func spawnWorkers(numWorkers int, child worker.Worker) {
 	var wg sync.WaitGroup
 	log.Println("Spawning workers...")
+	wg.Add(numWorkers)
 	for w := 1; w <= numWorkers; w++ {
 		wId := w
-		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			child.Work(wId, jobs, results)
