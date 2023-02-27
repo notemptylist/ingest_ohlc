@@ -46,8 +46,8 @@ func (d *dataDir) readFilesNames() error {
 	return nil
 }
 
-var jobs = make(chan worker.Job, 3)
-var results = make(chan worker.Result, 3)
+var jobs = make(chan worker.Job)
+var results = make(chan worker.Result)
 
 // allocateWork creates Job objects from the dataDir struct and sends them
 // to the jobs channel
